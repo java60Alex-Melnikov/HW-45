@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Base64Str
 
 class RefreshData(BaseModel):
-    refreshToken: str
+    refreshToken: Base64Str

@@ -1,3 +1,4 @@
 from pydantic import BaseModel
-def validate(baseModel: BaseModel, dataJSON: str)->dict:
+from typing import Type
+def validate(baseModel: Type[BaseModel], dataJSON: str):
     return baseModel.model_validate_json(dataJSON)

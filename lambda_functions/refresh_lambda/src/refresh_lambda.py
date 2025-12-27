@@ -23,7 +23,7 @@ def getRefreshToken(event) -> str:
         return None    
 def initiate_auth(client, refreshToken)->dict:
     resp = client.initiate_auth(
-        AuthFlow="REFRESH_TOKRN_AUTH",
+        AuthFlow="REFRESH_TOKEN_AUTH",
         ClientId = CLIENT_ID,
         AuthParameters ={
             "REFRESH_TOKEN":refreshToken
