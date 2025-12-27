@@ -17,8 +17,8 @@ def __response(code, body):
 def __publishData(data: CalculateData) -> tuple[int, dict]:
     dataJSON = data.model_dump_json()
     logger.debug(f"publishing {dataJSON}")
-    sns = boto3.client("sns", region_name="il-central-1")
-    topicArn = "arn:aws:sns:il-central-1:436705618119:calculator-topic"
+    sns = boto3.client("sns", region_name="eu-north-1")
+    topicArn = "arn:aws:sns:eu-north-1:505295717592:calculator_topic"
     code: int = 500
     body = {}
 

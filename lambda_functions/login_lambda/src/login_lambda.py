@@ -111,7 +111,7 @@ def debugAuthResp(resp):
 
 def lambda_handler(event, __):
     logger.debug("event is %s", event)
-    client = boto3.client("cognito-idp", region_name="il-central-1")
+    client = boto3.client("cognito-idp", region_name="eu-north-1")
     login_data = getCredentials(event)
     
     if login_data:
