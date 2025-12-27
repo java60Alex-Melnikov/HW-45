@@ -1,11 +1,9 @@
-import boto3
-from botocore.exceptions import ClientError
-CLIENT_ID = "6n5mvgjg3rje55ek2dtkju0tmm"
+import os
+from validation.src.pydantic_validation import validate
+from login_data import LoginData
+CLIENT_ID = "3c9viqd9tt0jrghfogm3t1a0gi"
 CHALLENGE_NAME_PROP = 'ChallengeName'
 CHALLENGE_NAME_VALUE = "NEW_PASSWORD_REQUIRED"
-USERNAME_FIELD = "username"
-PASSWORD_FIELD = "password"
-NEW_PASSWORD_FIELD = "newPassword"
 AUTH_RESULT ="AuthenticationResult"
 ACCSESS_TOKEN = "AccessToken"
 REFRESH_TOKEN = "RefreshToken"
@@ -46,19 +44,13 @@ def __response(code, body):
         'statusCode': code,
         'body': json.dumps(body)
     } 
-def getCredentials(event):
-    username: str| None = None
-    password: str | None = None
-    newPassword: str | None = None
+def getCredentials(event) -> LoginData:
     bodyJson = event.get("body", "{}")
     try:
-        body = json.loads(bodyJson)
-        username = body.get(USERNAME_FIELD)
-        password = body.get(PASSWORD_FIELD)
-        newPassword = body.get(NEW_PASSWORD_FIELD)
-    except Exception:
-        pass    
-    return username, password, newPassword  
+        return validate(LoginData, bodyJson)
+    except Exception as e:
+        logger.error(f"Validation failed: {e}")
+        return None  
      
 def wrong_resp(): 
     return __response(400, {"error": ERROR_MESSAGE})
@@ -120,8 +112,9 @@ def debugAuthResp(resp):
 def lambda_handler(event, __):
     logger.debug("event is %s", event)
     client = boto3.client("cognito-idp", region_name="il-central-1")
-    username, password, newPassword = getCredentials(event)
-    return authenticate(client, username, password, newPassword) if username and password else wrong_resp()
-          
-
- 
+    login_data = getCredentials(event)
+    
+    if login_data:
+        return authenticate(client, login_data.username, login_data.password, login_data.newPassword)
+    else:
+        return wrong_resp()

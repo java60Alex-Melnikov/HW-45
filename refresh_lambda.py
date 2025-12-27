@@ -3,22 +3,24 @@ import boto3
 from botocore.exceptions import ClientError
 import logging
 import json
-CLIENT_ID = "6n5mvgjg3rje55ek2dtkju0tmm"
+from validation.src.pydantic_validation import validate
+from refresh_data import RefreshData
+
+CLIENT_ID = "3c9viqd9tt0jrghfogm3t1a0gi"
 
 AUTH_RESULT ="AuthenticationResult"
 ACCSESS_TOKEN = "AccessToken"
 ID_TOKEN = "IdToken"
 logger = logging.getLogger("lambda_function")
 logger.setLevel(os.getenv("LOGGING_LEVEL", logging.INFO))
-def getRefreshToken(event)-> str:
+def getRefreshToken(event) -> str:
     bodyJSON = event.get("body", "{}")
-    res: str = ""
     try:
-        body = json.loads(bodyJSON)
-        res = body["refreshToken"]
-    except Exception:
-        pass
-    return res    
+        refresh_data = validate(RefreshData, bodyJSON)
+        return refresh_data.refreshToken
+    except Exception as e:
+        logger.error(f"Validation error: {e}")
+        return None    
 def initiate_auth(client, refreshToken)->dict:
     resp = client.initiate_auth(
         AuthFlow="REFRESH_TOKRN_AUTH",
@@ -74,6 +76,3 @@ def lambda_handler(event, __):
     client = boto3.client("cognito-idp", region_name="il-central-1")
     refreshToken = getRefreshToken(event)
     return refreshProcessing(client, refreshToken)
-          
-
- 
